@@ -40,8 +40,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           # This creates a unique tag for every push based on the run number
-          tag_name: v${{ github.run_number }}
-          name: "Pre-Release v${{ github.run_number }}"
+          tag_name: "web-to-apk"
+          name: "Pre-Release"
           body: "Automated build of the latest website-to-APK conversion."
           draft: false
           prerelease: true
