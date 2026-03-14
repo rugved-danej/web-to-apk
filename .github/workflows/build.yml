@@ -4,7 +4,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # This permission is REQUIRED to create a release
     permissions:
       contents: write
 
@@ -32,7 +31,8 @@ jobs:
         run: pnpm install
 
       - name: Generate App Icons
-        run: pnpm dlx @capacitor/assets generate --android
+        # Added --allow-build=sharp to fix the 'sharp' module error
+        run: pnpm dlx --allow-build=sharp @capacitor/assets generate --android
 
       - name: Build APK
         run: |
@@ -42,7 +42,6 @@ jobs:
       - name: Create GitHub Pre-Release
         uses: softprops/action-gh-release@v2
         with:
-          # This creates a unique tag for every push based on the run number
           tag_name: "web-to-apk"
           name: "Pre-Release"
           body: "Automated build of the latest website-to-APK conversion."
