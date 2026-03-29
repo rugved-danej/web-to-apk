@@ -1,0 +1,53 @@
+name: Build and Release APK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Generate App Icons
+        # Added --allow-build=sharp to fix the 'sharp' module error
+        run: pnpm dlx --allow-build=sharp @capacitor/assets generate --android
+
+      - name: Build APK
+        run: |
+          pnpm exec cap sync android
+          cd android && ./gradlew assembleDebug
+
+      - name: Create GitHub Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "web-to-apk"
+          name: "Pre-Release"
+          body: "Automated build of the latest website-to-APK conversion."
+          draft: false
+          prerelease: true
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
